@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { FormEvent, useState } from "react";
 
 type SegmentOption = {
@@ -292,6 +293,12 @@ export function CreateCampaign({
                   </div>
                 </div>
                 <div className="form-actions">
+                  <Link
+                    className="button button-secondary"
+                    href={`/app/newsletters/${newsletterSlug}/campaigns/${campaign.id}`}
+                  >
+                    View report
+                  </Link>
                   <button
                     className="button button-secondary"
                     disabled={preparingCampaignId === campaign.id || campaign.status === "queued"}

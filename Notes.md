@@ -481,3 +481,166 @@ Check plan linkage
      keep ngrok for the webhook URLs
      start checkout from localhost
      Stripe should now return to localhost and keep your auth session intact
+
+## Next Steps - Subscription Management and Billing
+
+The next step I’d recommend is subscription management and billing guardrails, not a brand-new feature area.
+
+You’ve now proven the core SaaS loop works:
+
+auth and onboarding
+forms and subscriber capture
+segments and campaigns
+Resend sending and webhook tracking
+usage metering
+Stripe checkout and webhook sync
+So the highest-value next work is making billing feel like a real product by adding:
+
+a billing portal / manage subscription flow
+clearer upgrade/downgrade state in the settings page
+guardrails like disabling invalid billing actions
+better plan-change feedback after Stripe returns
+After that, I’d move to campaign detail/reporting UI, since the backend data is already there and it will make the product feel much more complete.
+
+If you want, I can take the next concrete step and build the Stripe customer portal / manage billing flow now.
+
+### Testing
+
+The next thing to test is simple:
+
+Open the newsletter settings page on localhost.
+Click Manage billing.
+Confirm Stripe’s portal opens.
+Exit the portal and make sure you land back on the settings page with the return notice.
+
+## Next Steps - Campaign Details Page
+
+The best next step is a campaign detail/reporting view.
+
+Why this one next:
+
+- the backend is already doing real work
+- you now have delivery rows, webhook updates, and aggregate stats
+- what’s missing is a better place in the app to inspect one campaign clearly
+
+I’d recommend building:
+
+- a campaign detail page
+- recipient-level delivery table for that campaign
+- status filters like sent, delivered, opened, clicked, bounced
+- a quick summary block with totals and rates
+- links back to the selected segment or “all subscribers” audience
+
+That would make the product feel much more complete from a user perspective, and it uses infrastructure we’ve already proven.
+
+After that, the next likely branch is either:
+
+- richer campaign editing with a better editor and preview
+- stronger billing/product guardrails
+- deployment polish for Render
+
+The campaign reporting page is live.
+
+I added a dedicated report route at src/app/app/newsletters/[newsletterId]/campaigns/[campaignId]/page.tsx (line 1), backed by a new server query in src/lib/newsletters.ts (line 1). It now shows:
+
+campaign summary metrics and rates
+audience/segment context
+recipient-level delivery rows
+status filters for queued, sent, delivered, opened, clicked, bounced, complained, and failed
+
+I also added a View report link from each campaign card in create-campaign.tsx (line 1), updated shared styles in globals.css (line 1), and logged it in README.md (line 1).
+
+### Testing
+
+The best test is:
+
+Open a sent campaign.
+Click View report.
+Verify the counts match Supabase.
+Try a few status filters and make sure the recipient rows narrow correctly.
+
+#### Issues
+
+Worked pretty well except for 2 items:
+
+1.  Resend doesn't allow for 100 emails to be sent all at once, for example. Changed some code around "prepare all" as well as an additional Segment filter ("before date").
+2.  Testing for whether an email has been opened is tricky and Gmail isn't reliable. In Resend, steps for setting up tracking:
+
+    Enable Open Tracking
+
+    Log into Resend.
+    Open Domains.
+    Click the domain you’re using as the sender for this app.
+    Go to the domain’s configuration/tracking area.
+    Find Open and Click Tracking.
+    Turn on Open Tracking.
+    Give the tracking subdomain a name, usually something like:
+    links
+    or track
+
+    That makes Resend want a tracking host such as:
+
+        links.yourdomain.com
+
+    Add The DNS Record
+    After you enable tracking, Resend will show you the DNS record it needs.
+
+        It will usually be a CNAME for the tracking subdomain.
+
+        Go to wherever your DNS is managed.
+        Examples:
+
+            GoDaddy
+            Cloudflare
+            Namecheap
+            your registrar or DNS host
+
+        Add the exact CNAME record Resend shows.
+        Save it.
+
+    Important:
+
+        copy the values exactly from Resend
+        if Resend also shows an extra CAA record requirement, add that too
+
+    Verify In Resend
+
+        Go back to Resend.
+        Click the verify/check button for the tracking subdomain.
+        Wait until Resend shows it as verified/active.
+
+    Resend says tracking is only active when both are true:
+
+        tracking is enabled
+        the tracking subdomain is verified
+
+    Source: https://resend.com/docs/dashboard/domains/tracking
+
+    Make Sure Your Webhook Already Includes Open Events
+
+    In your Resend webhook settings, keep:
+
+        email.delivered
+        email.opened
+        email.clicked
+        email.bounced
+        email.complained
+        email.failed
+
+    Retest
+
+        Send a fresh campaign.
+        Open one of the emails.
+        Wait a bit.
+
+    Check:
+    Resend webhook deliveries
+    email_deliveries.opened_at
+    campaign report page
+
+    One Small Expectation Setter
+
+    Even after setup, open tracking is never perfect because it depends on image loading behavior in the mailbox client, and Gmail can be inconsistent.
+    Source: https://resend.com/docs/knowledge-base/why-are-my-open-rates-not-accurate
+
+    If you want, once you’ve enabled the tracking subdomain, I can help you sanity-check whether the Resend webhook and DNS setup look right before you send another test campaign.

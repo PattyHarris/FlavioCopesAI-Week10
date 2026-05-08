@@ -5,13 +5,22 @@ import { slugify } from "@/lib/utils/slugify";
 export type SegmentRule =
   | { field: "source_list_id"; operator: "equals"; value: string }
   | { field: "status"; operator: "equals"; value: string }
-  | { field: "subscribed_at"; operator: "after"; value: string };
+  | { field: "subscribed_at"; operator: "after" | "before"; value: string };
 
 export type OnboardingInput = {
   fullName: string;
   newsletterName: string;
   newsletterDescription: string;
 };
+
+const RESEND_MAX_REQUESTS_PER_SECOND = 4;
+const RESEND_BATCH_DELAY_MS = 1000;
+
+function sleep(ms: number) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
 
 export async function getCurrentUserContext() {
   const supabase = await createSupabaseServerClient();
@@ -470,6 +479,183 @@ export async function getCampaignsForOwnedNewsletter(slug: string) {
   };
 }
 
+export async function getCampaignReportForOwnedNewsletter(slug: string, campaignId: string) {
+  const supabase = await createSupabaseServerClient();
+  const { newsletter } = await getOwnedNewsletterBySlug(slug);
+
+  const [{ data: campaign, error: campaignError }, { data: forms, error: formsError }] = await Promise.all([
+    supabase
+      .from("campaigns")
+      .select("id, name, subject, preview_text, body_html, status, sent_at, created_at, segment_id")
+      .eq("newsletter_id", newsletter.id)
+      .eq("id", campaignId)
+      .maybeSingle(),
+    supabase.from("signup_forms").select("id, name").eq("newsletter_id", newsletter.id),
+  ]);
+
+  if (campaignError) {
+    throw new Error(campaignError.message);
+  }
+
+  if (formsError) {
+    throw new Error(formsError.message);
+  }
+
+  if (!campaign) {
+    throw new Error("Campaign not found.");
+  }
+
+  const [{ data: deliveries, error: deliveriesError }, { data: segment, error: segmentError }] = await Promise.all([
+    supabase
+      .from("email_deliveries")
+      .select(
+        `
+          id,
+          campaign_id,
+          subscriber_id,
+          status,
+          delivered_at,
+          opened_at,
+          clicked_at,
+          bounced_at,
+          created_at,
+          subscribers!inner (
+            id,
+            email,
+            first_name,
+            last_name,
+            status,
+            subscribed_at,
+            source_list_id
+          )
+        `,
+      )
+      .eq("campaign_id", campaign.id)
+      .order("created_at", { ascending: false }),
+    campaign.segment_id
+      ? supabase
+          .from("segments")
+          .select("id, name, description")
+          .eq("newsletter_id", newsletter.id)
+          .eq("id", campaign.segment_id)
+          .maybeSingle()
+      : Promise.resolve({ data: null, error: null }),
+  ]);
+
+  if (deliveriesError) {
+    throw new Error(deliveriesError.message);
+  }
+
+  if (segmentError) {
+    throw new Error(segmentError.message);
+  }
+
+  const formNameById = new Map((forms ?? []).map((form) => [form.id, form.name]));
+  const statusCounts = new Map<string, number>();
+  const summary = {
+    total: 0,
+    queued: 0,
+    sent: 0,
+    delivered: 0,
+    opened: 0,
+    clicked: 0,
+    bounced: 0,
+    complained: 0,
+    failed: 0,
+  };
+
+  const normalizedDeliveries = (deliveries ?? []).map((delivery) => {
+    const subscriber = Array.isArray(delivery.subscribers) ? delivery.subscribers[0] : delivery.subscribers;
+    const fullName = [subscriber?.first_name, subscriber?.last_name].filter(Boolean).join(" ").trim();
+
+    summary.total += 1;
+    statusCounts.set(delivery.status, (statusCounts.get(delivery.status) ?? 0) + 1);
+
+    if (delivery.status === "queued") {
+      summary.queued += 1;
+    }
+
+    if (delivery.status === "sent") {
+      summary.sent += 1;
+    }
+
+    if (delivery.delivered_at || ["delivered", "opened", "clicked"].includes(delivery.status)) {
+      summary.delivered += 1;
+    }
+
+    if (delivery.opened_at || ["opened", "clicked"].includes(delivery.status)) {
+      summary.opened += 1;
+    }
+
+    if (delivery.clicked_at || delivery.status === "clicked") {
+      summary.clicked += 1;
+    }
+
+    if (delivery.bounced_at || delivery.status === "bounced") {
+      summary.bounced += 1;
+    }
+
+    if (delivery.status === "complained") {
+      summary.complained += 1;
+    }
+
+    if (delivery.status === "failed") {
+      summary.failed += 1;
+    }
+
+    return {
+      id: delivery.id,
+      status: delivery.status,
+      created_at: delivery.created_at,
+      delivered_at: delivery.delivered_at,
+      opened_at: delivery.opened_at,
+      clicked_at: delivery.clicked_at,
+      bounced_at: delivery.bounced_at,
+      subscriber: {
+        id: subscriber?.id ?? delivery.subscriber_id,
+        email: subscriber?.email ?? "Unknown email",
+        fullName: fullName || null,
+        status: subscriber?.status ?? "unknown",
+        subscribedAt: subscriber?.subscribed_at ?? null,
+        sourceFormName: subscriber?.source_list_id
+          ? formNameById.get(subscriber.source_list_id) ?? "Unknown form"
+          : "Direct import",
+      },
+    };
+  });
+
+  const rate = (value: number, total: number) => (total > 0 ? Math.round((value / total) * 1000) / 10 : 0);
+
+  return {
+    newsletter,
+    campaign: {
+      ...campaign,
+      audienceLabel: segment?.name ?? "All subscribers",
+      segmentName: segment?.name ?? null,
+      segmentDescription: segment?.description ?? null,
+    },
+    deliveries: normalizedDeliveries,
+    statusCounts: {
+      all: normalizedDeliveries.length,
+      queued: statusCounts.get("queued") ?? 0,
+      sent: statusCounts.get("sent") ?? 0,
+      delivered: statusCounts.get("delivered") ?? 0,
+      opened: statusCounts.get("opened") ?? 0,
+      clicked: statusCounts.get("clicked") ?? 0,
+      bounced: statusCounts.get("bounced") ?? 0,
+      complained: statusCounts.get("complained") ?? 0,
+      failed: statusCounts.get("failed") ?? 0,
+    },
+    summary: {
+      ...summary,
+      deliveryRate: rate(summary.delivered, summary.total),
+      openRate: rate(summary.opened, summary.total),
+      clickRate: rate(summary.clicked, summary.total),
+      bounceRate: rate(summary.bounced, summary.total),
+    },
+  };
+}
+
 export async function createCampaignDraftForCurrentUser(input: {
   newsletterSlug: string;
   name: string;
@@ -561,6 +747,10 @@ function applySegmentRules<T extends {
         return new Date(subscriber.subscribed_at).getTime() > new Date(rule.value).getTime();
       }
 
+      if (rule.field === "subscribed_at" && rule.operator === "before") {
+        return new Date(subscriber.subscribed_at).getTime() < new Date(rule.value).getTime();
+      }
+
       return true;
     }),
   );
@@ -579,7 +769,7 @@ function describeSegmentRule(
   }
 
   if (rule.field === "subscribed_at") {
-    return `Signed up after ${rule.value}`;
+    return rule.operator === "before" ? `Signed up before ${rule.value}` : `Signed up after ${rule.value}`;
   }
 
   return "Custom rule";
@@ -850,32 +1040,47 @@ export async function sendQueuedCampaignForCurrentUser(input: {
   const resend = createResendClient();
   const from = getResendFromEmail();
 
-  const sendResults = await Promise.all(
-    deliveries.map(async (delivery) => {
-      const recipient = Array.isArray(delivery.subscribers) ? delivery.subscribers[0] : delivery.subscribers;
+  const sendResults: Array<{
+    deliveryId: string;
+    providerMessageId: string | null;
+  }> = [];
 
-      if (!recipient?.email) {
-        throw new Error("Queued delivery is missing a subscriber email.");
-      }
+  for (let index = 0; index < deliveries.length; index += RESEND_MAX_REQUESTS_PER_SECOND) {
+    const deliveryBatch = deliveries.slice(index, index + RESEND_MAX_REQUESTS_PER_SECOND);
 
-      const { data, error } = await resend.emails.send({
-        from,
-        to: [recipient.email],
-        subject: campaign.subject,
-        html: campaign.body_html,
-        replyTo: undefined,
-      });
+    const batchResults = await Promise.all(
+      deliveryBatch.map(async (delivery) => {
+        const recipient = Array.isArray(delivery.subscribers) ? delivery.subscribers[0] : delivery.subscribers;
 
-      if (error) {
-        throw new Error(error.message);
-      }
+        if (!recipient?.email) {
+          throw new Error("Queued delivery is missing a subscriber email.");
+        }
 
-      return {
-        deliveryId: delivery.id,
-        providerMessageId: data?.id ?? null,
-      };
-    }),
-  );
+        const { data, error } = await resend.emails.send({
+          from,
+          to: [recipient.email],
+          subject: campaign.subject,
+          html: campaign.body_html,
+          replyTo: undefined,
+        });
+
+        if (error) {
+          throw new Error(error.message);
+        }
+
+        return {
+          deliveryId: delivery.id,
+          providerMessageId: data?.id ?? null,
+        };
+      }),
+    );
+
+    sendResults.push(...batchResults);
+
+    if (index + RESEND_MAX_REQUESTS_PER_SECOND < deliveries.length) {
+      await sleep(RESEND_BATCH_DELAY_MS);
+    }
+  }
 
   for (const result of sendResults) {
     const { error } = await supabase

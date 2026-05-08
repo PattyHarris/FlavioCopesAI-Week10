@@ -11,14 +11,17 @@ type Plan = {
 export function BillingActions({
   newsletterSlug,
   currentPlanId,
+  hasStripeCustomer,
   plans,
 }: {
   newsletterSlug: string;
   currentPlanId: string | null;
+  hasStripeCustomer: boolean;
   plans: Plan[];
 }) {
   const [message, setMessage] = useState("Choose a paid plan when you are ready to test Stripe checkout.");
   const [loadingPlanId, setLoadingPlanId] = useState<string | null>(null);
+  const [openingPortal, setOpeningPortal] = useState(false);
 
   async function handleCheckout(planId: string) {
     setLoadingPlanId(planId);
@@ -50,10 +53,58 @@ export function BillingActions({
     }
   }
 
+  async function handlePortal() {
+    setOpeningPortal(true);
+    setMessage("Opening Stripe customer portal...");
+
+    try {
+      const response = await fetch("/api/stripe/portal", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          newsletterSlug,
+        }),
+      });
+
+      const payload = (await response.json()) as { portalUrl?: string; error?: string };
+
+      if (!response.ok || !payload.portalUrl) {
+        throw new Error(payload.error ?? "Unable to open the Stripe customer portal.");
+      }
+
+      window.location.href = payload.portalUrl;
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Unable to open the Stripe customer portal.");
+    } finally {
+      setOpeningPortal(false);
+    }
+  }
+
   return (
     <div className="card">
       <p className="eyebrow">Upgrade actions</p>
       <div className="card-list">
+        <div className="hero-stat">
+          <strong>Manage billing</strong>
+          <p className="muted-copy">
+            {hasStripeCustomer
+              ? "Open Stripe's customer portal to review payment details and manage the subscription."
+              : "Complete a Stripe checkout first so this newsletter has a linked customer record."}
+          </p>
+          <div className="form-actions">
+            <button
+              className="button button-secondary"
+              disabled={!hasStripeCustomer || openingPortal || loadingPlanId !== null}
+              onClick={handlePortal}
+              type="button"
+            >
+              {openingPortal ? "Opening..." : "Manage billing"}
+            </button>
+          </div>
+        </div>
+
         {plans
           .filter((plan) => plan.name !== "Free")
           .map((plan) => (

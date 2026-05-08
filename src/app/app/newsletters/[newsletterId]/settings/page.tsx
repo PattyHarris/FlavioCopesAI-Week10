@@ -9,6 +9,7 @@ type PageProps = {
   }>;
   searchParams?: Promise<{
     checkout?: string;
+    portal?: string;
   }>;
 };
 
@@ -16,6 +17,7 @@ export default async function SettingsPage({ params, searchParams }: PageProps) 
   const { newsletterId } = await params;
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const checkoutState = resolvedSearchParams?.checkout;
+  const portalState = resolvedSearchParams?.portal;
 
   try {
     const { newsletter, usage, selectedPlan, recommendedPlan, plans, subscription } =
@@ -50,6 +52,16 @@ export default async function SettingsPage({ params, searchParams }: PageProps) 
             <p className="muted-copy">
               No billing change was made. You can return to this page and try the upgrade flow again whenever you are
               ready.
+            </p>
+          </section>
+        ) : null}
+
+        {portalState === "returned" ? (
+          <section className="status-banner status-banner-info" aria-live="polite">
+            <strong>Billing portal closed.</strong>
+            <p className="muted-copy">
+              You are back in What&apos;s New. Refresh in a moment if you changed anything in Stripe and want to confirm
+              the latest subscription state here.
             </p>
           </section>
         ) : null}
@@ -203,6 +215,7 @@ export default async function SettingsPage({ params, searchParams }: PageProps) 
         <section>
           <BillingActions
             currentPlanId={selectedPlan?.id ?? null}
+            hasStripeCustomer={Boolean(subscription?.stripe_customer_id)}
             newsletterSlug={newsletter.slug}
             plans={plans}
           />

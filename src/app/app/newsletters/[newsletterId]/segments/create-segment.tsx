@@ -11,7 +11,7 @@ type FormOption = {
 type SegmentRule =
   | { field: "source_list_id"; operator: "equals"; value: string }
   | { field: "status"; operator: "equals"; value: string }
-  | { field: "subscribed_at"; operator: "after"; value: string };
+  | { field: "subscribed_at"; operator: "after" | "before"; value: string };
 
 type SegmentRow = {
   id: string;
@@ -38,6 +38,7 @@ export function CreateSegment({
   const [ruleType, setRuleType] = useState<"source_list_id" | "status" | "subscribed_at">("source_list_id");
   const [formId, setFormId] = useState(forms[0]?.id ?? "");
   const [statusValue, setStatusValue] = useState("subscribed");
+  const [dateOperator, setDateOperator] = useState<"after" | "before">("after");
   const [dateValue, setDateValue] = useState("");
   const [message, setMessage] = useState("Build a simple rule-based audience segment.");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -52,7 +53,7 @@ export function CreateSegment({
     }
 
     if (ruleType === "subscribed_at" && dateValue) {
-      return [{ field: "subscribed_at", operator: "after", value: dateValue }];
+      return [{ field: "subscribed_at", operator: dateOperator, value: dateValue }];
     }
 
     return [];
@@ -93,6 +94,7 @@ export function CreateSegment({
       setRuleType("source_list_id");
       setFormId(forms[0]?.id ?? "");
       setStatusValue("subscribed");
+      setDateOperator("after");
       setDateValue("");
       setMessage(payload.message ?? "Segment created.");
     } catch (error) {
@@ -108,7 +110,7 @@ export function CreateSegment({
         <p className="eyebrow">Create segment</p>
         <h2>Define a simple audience rule</h2>
         <p className="helper-copy">
-          First pass: create one-rule segments by source form, subscriber status, or signup date.
+          First pass: create one-rule segments by source form, subscriber status, or signup date window.
         </p>
         <form onSubmit={handleSubmit}>
           <label className="field">
@@ -134,7 +136,7 @@ export function CreateSegment({
             <select className="select-input" onChange={(event) => setRuleType(event.target.value as typeof ruleType)} value={ruleType}>
               <option value="source_list_id">Signed up through a form</option>
               <option value="status">Subscriber status</option>
-              <option value="subscribed_at">Signed up after a date</option>
+              <option value="subscribed_at">Signed up before or after a date</option>
             </select>
           </label>
 
@@ -164,10 +166,23 @@ export function CreateSegment({
           ) : null}
 
           {ruleType === "subscribed_at" ? (
-            <label className="field">
-              <span className="field-label">Signed up after</span>
-              <input onChange={(event) => setDateValue(event.target.value)} required type="date" value={dateValue} />
-            </label>
+            <>
+              <label className="field">
+                <span className="field-label">Date rule</span>
+                <select
+                  className="select-input"
+                  onChange={(event) => setDateOperator(event.target.value as "after" | "before")}
+                  value={dateOperator}
+                >
+                  <option value="after">Signed up after</option>
+                  <option value="before">Signed up before</option>
+                </select>
+              </label>
+              <label className="field">
+                <span className="field-label">{dateOperator === "before" ? "Signed up before" : "Signed up after"}</span>
+                <input onChange={(event) => setDateValue(event.target.value)} required type="date" value={dateValue} />
+              </label>
+            </>
           ) : null}
 
           <div className="form-actions">

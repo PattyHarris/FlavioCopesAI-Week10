@@ -331,6 +331,7 @@ Current status:
 - Stripe checkout session creation is scaffolded
 - Stripe webhook ingestion is scaffolded
 - Upgrade buttons are visible in the settings page
+- A Stripe customer portal flow is now available once a newsletter is linked to a Stripe customer
 
 Important setup note:
 
@@ -339,7 +340,26 @@ Important setup note:
 
 Recommended next step:
 
-- Create Stripe test Prices for Starter and Growth, update `billing_plans.stripe_price_id`, then test Checkout and the Stripe webhook flow
+- Test Checkout, then use `Manage billing` to confirm the Stripe customer portal opens and returns cleanly to the settings page
+
+### 2026-05-07 Campaign Reporting
+
+Current status:
+
+- Campaigns now have a dedicated reporting page inside the app
+- Recipient-level delivery rows can be filtered by status
+- Delivery, open, click, and bounce rates are visible without leaving the product
+
+Recommended next step:
+
+- Test the report page with a sent campaign, then decide whether to deepen campaign editing or move toward deployment polish
+
+### 2026-05-08 Segment Rules
+
+Current status:
+
+- Segment creation now supports both `signed up after` and `signed up before` date rules
+- Date-based audience narrowing is easier for testing and future targeting work
 
 ## Local Test Flow
 
