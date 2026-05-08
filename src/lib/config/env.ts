@@ -11,6 +11,7 @@ export const env = {
   resendApiKey: process.env.RESEND_API_KEY ?? "",
   resendAudienceFromEmail: process.env.RESEND_AUDIENCE_FROM_EMAIL ?? "",
   resendReplyTo: process.env.RESEND_REPLY_TO ?? "",
+  resendWebhookSecret: process.env.RESEND_WEBHOOK_SECRET ?? "",
   stripeSecretKey: process.env.STRIPE_SECRET_KEY ?? "",
   stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET ?? "",
 };

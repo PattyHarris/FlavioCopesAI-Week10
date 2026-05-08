@@ -185,6 +185,46 @@ where newsletter_id = 'NEWSLETTER_UUID_HERE'
 - Do we want Resend as the first implementation only, or do we want an email-provider abstraction from day one
 - Should dark mode ship in v1 or immediately as a first-class design constraint during the build
 
+## Render Deployment Prep
+
+Recommended production shape:
+
+- One Render `web` service for the Next.js app
+- Supabase hosted separately
+- Resend webhooks pointed directly at the Render app URL
+- Stripe webhooks pointed directly at the Render app URL
+
+Required Render environment variables:
+
+- `NEXT_PUBLIC_APP_URL`
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `RESEND_API_KEY`
+- `RESEND_AUDIENCE_FROM_EMAIL`
+- `RESEND_REPLY_TO`
+- `RESEND_WEBHOOK_SECRET`
+- `STRIPE_SECRET_KEY`
+- `STRIPE_WEBHOOK_SECRET`
+
+Production URL replacements after deploy:
+
+- Resend webhook: `https://YOUR-RENDER-DOMAIN/api/webhooks/resend`
+- Stripe webhook: `https://YOUR-RENDER-DOMAIN/api/webhooks/stripe`
+- App base URL: `NEXT_PUBLIC_APP_URL=https://YOUR-RENDER-DOMAIN`
+
+Supabase settings to review before go-live:
+
+- Keep email OTP enabled
+- If Supabase email templates or redirects rely on a site URL, update them to the Render domain
+- Add the Render domain to any allowed redirect/site URL settings you are using
+
+Deployment notes:
+
+- `render.yaml` is already set up for a single Node web service
+- `RESEND_WEBHOOK_SECRET` is reserved for future webhook signature verification hardening
+- Stripe checkout and portal flows already return to the origin that initiated the request, which is safer for local and production auth sessions
+
 ## Session Details
 
 ### 2026-05-02

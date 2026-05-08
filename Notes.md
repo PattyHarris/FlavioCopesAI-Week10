@@ -644,3 +644,5 @@ Worked pretty well except for 2 items:
     Source: https://resend.com/docs/knowledge-base/why-are-my-open-rates-not-accurate
 
     If you want, once you’ve enabled the tracking subdomain, I can help you sanity-check whether the Resend webhook and DNS setup look right before you send another test campaign.
+
+## Render Deployment
