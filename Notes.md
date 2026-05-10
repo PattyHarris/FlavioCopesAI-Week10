@@ -837,3 +837,43 @@ As of this writing, I had no redirect URLs setup.
 Need to verify this: If you still use local auth too, keep localhost alongside it.
 
 NOTE: the .env email type values cannot be quoted when used in Render.
+
+### Remote Deployment
+
+There was a few issues with remote deployment, mostly on my part as usual although there was one bug related to the use of the wrong newsletter ID. Those have been fixed and remote deployment is in a good state.
+
+## Next Up - Account/newsletter identity polish pass
+
+From the agent:
+
+The next best step is **product clarity and cleanup**, not another backend subsystem.
+
+You’ve now proven:
+
+- auth/onboarding
+- forms and subscribers
+- segments
+- campaigns and reporting
+- Resend sending and webhooks
+- billing usage
+- Stripe checkout and portal
+- Render deployment
+
+That’s a big milestone. At this point, the highest-value work is making the product easier to understand and safer to use.
+
+My recommendation is a **polish and guardrails pass** focused on:
+
+- showing the signed-in email clearly
+- showing the current newsletter identity clearly
+- making multi-newsletter/account context less confusing
+- improving billing/campaign success messages
+- tightening empty states and “what to do next” hints
+- possibly adding logout/account controls more explicitly
+
+Why this next:
+
+- you just ran into several issues caused by ambiguity, not broken infrastructure
+- the backend is now strong enough that UX clarity will pay off immediately
+- it will make future testing and demos much smoother
+
+If you want, I can take the next concrete step and do a focused **account/newsletter identity polish pass** first.

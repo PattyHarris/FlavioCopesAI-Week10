@@ -16,5 +16,14 @@ export default async function DashboardLayout({ children }: { children: React.Re
     redirect("/onboarding");
   }
 
-  return <AppShell primaryNewsletterSlug={primaryNewsletter.slug}>{children}</AppShell>;
+  return (
+    <AppShell
+      currentNewsletter={primaryNewsletter}
+      newsletters={context.newsletters}
+      userEmail={context.user.email ?? "Unknown email"}
+      userName={context.profile?.full_name ?? null}
+    >
+      {children}
+    </AppShell>
+  );
 }

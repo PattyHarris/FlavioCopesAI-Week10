@@ -9,21 +9,55 @@ import { cn } from "@/lib/utils/cn";
 
 export function AppShell({
   children,
-  primaryNewsletterSlug,
+  currentNewsletter,
+  newsletters,
+  userEmail,
+  userName,
 }: {
   children: React.ReactNode;
-  primaryNewsletterSlug: string;
+  currentNewsletter: {
+    name: string;
+    slug: string;
+  };
+  newsletters: Array<{
+    id: string;
+    name: string;
+    slug: string;
+  }>;
+  userEmail: string;
+  userName: string | null;
 }) {
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isSigningOut, setIsSigningOut] = useState(false);
   const navigation = [
     { href: "/app", label: "Overview" },
-    { href: `/app/newsletters/${primaryNewsletterSlug}/subscribers`, label: "Subscribers" },
-    { href: `/app/newsletters/${primaryNewsletterSlug}/forms`, label: "Forms" },
-    { href: `/app/newsletters/${primaryNewsletterSlug}/segments`, label: "Segments" },
-    { href: `/app/newsletters/${primaryNewsletterSlug}/campaigns`, label: "Campaigns" },
-    { href: `/app/newsletters/${primaryNewsletterSlug}/settings`, label: "Settings" },
+    { href: `/app/newsletters/${currentNewsletter.slug}/subscribers`, label: "Subscribers" },
+    { href: `/app/newsletters/${currentNewsletter.slug}/forms`, label: "Forms" },
+    { href: `/app/newsletters/${currentNewsletter.slug}/segments`, label: "Segments" },
+    { href: `/app/newsletters/${currentNewsletter.slug}/campaigns`, label: "Campaigns" },
+    { href: `/app/newsletters/${currentNewsletter.slug}/settings`, label: "Settings" },
   ];
+
+  async function handleSignOut() {
+    setIsSigningOut(true);
+
+    try {
+      const response = await fetch("/api/auth/sign-out", {
+        method: "POST",
+      });
+
+      if (!response.ok) {
+        const payload = (await response.json()) as { error?: string };
+        throw new Error(payload.error ?? "Unable to sign out.");
+      }
+
+      window.location.href = "/login";
+    } catch (error) {
+      alert(error instanceof Error ? error.message : "Unable to sign out.");
+      setIsSigningOut(false);
+    }
+  }
 
   return (
     <div className="app-shell">
@@ -39,6 +73,11 @@ export function AppShell({
             Close
           </button>
         </div>
+        <div className="identity-card">
+          <p className="eyebrow">Signed in as</p>
+          <strong>{userName || userEmail}</strong>
+          <p className="muted-copy">{userEmail}</p>
+        </div>
         <nav className="sidebar-nav">
           {navigation.map((item) => (
             <Link
@@ -51,8 +90,35 @@ export function AppShell({
             </Link>
           ))}
         </nav>
+        <div className="sidebar-section">
+          <p className="eyebrow">Current newsletter</p>
+          <strong>{currentNewsletter.name}</strong>
+          <p className="muted-copy">{currentNewsletter.slug}</p>
+        </div>
+        <div className="sidebar-section">
+          <p className="eyebrow">Your newsletters</p>
+          <div className="newsletter-list">
+            {newsletters.map((newsletter) => (
+              <Link
+                className={cn(
+                  "newsletter-link",
+                  newsletter.slug === currentNewsletter.slug && "newsletter-link-active",
+                )}
+                href={`/app/newsletters/${newsletter.slug}/settings`}
+                key={newsletter.id}
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <strong>{newsletter.name}</strong>
+                <span>{newsletter.slug}</span>
+              </Link>
+            ))}
+          </div>
+        </div>
         <div className="sidebar-footer">
           <p>Usage billing, forms, analytics, and delivery live together in one product shell.</p>
+          <button className="ghost-button" disabled={isSigningOut} onClick={handleSignOut} type="button">
+            {isSigningOut ? "Signing out..." : "Sign out"}
+          </button>
         </div>
       </aside>
       <div className="app-content">
@@ -67,6 +133,10 @@ export function AppShell({
             </div>
           </div>
           <div className="topbar-actions">
+            <div className="identity-inline">
+              <strong>{currentNewsletter.name}</strong>
+              <span>{userEmail}</span>
+            </div>
             <div className="command-hint">Press Cmd/Ctrl + K</div>
             <ThemeToggle />
           </div>

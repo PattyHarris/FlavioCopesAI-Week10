@@ -409,6 +409,14 @@ Current status:
 - Stripe checkout completion now upserts subscription state by `newsletter_id`
 - Billing no longer depends on an older seed migration having backfilled every later newsletter
 
+### 2026-05-10 Identity Clarity
+
+Current status:
+
+- The app shell now shows the signed-in account clearly
+- The current newsletter identity is visible in both sidebar and top bar
+- A sign-out action now exists directly in the app shell
+
 ## Local Test Flow
 
 To test the new hosted signup form loop locally:
