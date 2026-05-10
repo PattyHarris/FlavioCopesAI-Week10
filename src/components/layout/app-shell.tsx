@@ -73,11 +73,6 @@ export function AppShell({
             Close
           </button>
         </div>
-        <div className="identity-card">
-          <p className="eyebrow">Signed in as</p>
-          <strong>{userName || userEmail}</strong>
-          <p className="muted-copy">{userEmail}</p>
-        </div>
         <nav className="sidebar-nav">
           {navigation.map((item) => (
             <Link
@@ -90,32 +85,8 @@ export function AppShell({
             </Link>
           ))}
         </nav>
-        <div className="sidebar-section">
-          <p className="eyebrow">Current newsletter</p>
-          <strong>{currentNewsletter.name}</strong>
-          <p className="muted-copy">{currentNewsletter.slug}</p>
-        </div>
-        <div className="sidebar-section">
-          <p className="eyebrow">Your newsletters</p>
-          <div className="newsletter-list">
-            {newsletters.map((newsletter) => (
-              <Link
-                className={cn(
-                  "newsletter-link",
-                  newsletter.slug === currentNewsletter.slug && "newsletter-link-active",
-                )}
-                href={`/app/newsletters/${newsletter.slug}/settings`}
-                key={newsletter.id}
-                onClick={() => setIsMenuOpen(false)}
-              >
-                <strong>{newsletter.name}</strong>
-                <span>{newsletter.slug}</span>
-              </Link>
-            ))}
-          </div>
-        </div>
         <div className="sidebar-footer">
-          <p>Usage billing, forms, analytics, and delivery live together in one product shell.</p>
+          <p>Everything for one newsletter workspace, from forms through billing.</p>
           <button className="ghost-button" disabled={isSigningOut} onClick={handleSignOut} type="button">
             {isSigningOut ? "Signing out..." : "Sign out"}
           </button>
@@ -133,9 +104,31 @@ export function AppShell({
             </div>
           </div>
           <div className="topbar-actions">
-            <div className="identity-inline">
-              <strong>{currentNewsletter.name}</strong>
-              <span>{userEmail}</span>
+            <div className="workspace-context">
+              <div className="context-card">
+                <span className="context-label">Current newsletter</span>
+                <strong>{currentNewsletter.name}</strong>
+                <span>{currentNewsletter.slug}</span>
+              </div>
+              <div className="context-card context-card-account">
+                <span className="context-label">Signed in as</span>
+                <strong>{userName || userEmail}</strong>
+                <span>{userEmail}</span>
+              </div>
+              <div className="context-switcher">
+                {newsletters.map((newsletter) => (
+                  <Link
+                    className={cn(
+                      "context-chip",
+                      newsletter.slug === currentNewsletter.slug && "context-chip-active",
+                    )}
+                    href={`/app/newsletters/${newsletter.slug}/settings`}
+                    key={newsletter.id}
+                  >
+                    {newsletter.name}
+                  </Link>
+                ))}
+              </div>
             </div>
             <div className="command-hint">Press Cmd/Ctrl + K</div>
             <ThemeToggle />
