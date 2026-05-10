@@ -563,86 +563,277 @@ Try a few status filters and make sure the recipient rows narrow correctly.
 
 Worked pretty well except for 2 items:
 
-1.  Resend doesn't allow for 100 emails to be sent all at once, for example. Changed some code around "prepare all" as well as an additional Segment filter ("before date").
-2.  Testing for whether an email has been opened is tricky and Gmail isn't reliable. In Resend, steps for setting up tracking:
+1. Resend doesn't allow for 100 emails to be sent all at once, for example. Changed some code around "prepare all" as well as an additional Segment filter ("before date").
+2. Testing for whether an email has been opened is tricky and Gmail isn't reliable. In Resend, steps for setting up tracking:
 
-    Enable Open Tracking
+Use these steps in Resend.
 
-    Log into Resend.
-    Open Domains.
-    Click the domain you’re using as the sender for this app.
-    Go to the domain’s configuration/tracking area.
-    Find Open and Click Tracking.
-    Turn on Open Tracking.
-    Give the tracking subdomain a name, usually something like:
-    links
-    or track
+**Enable Open Tracking**
 
-    That makes Resend want a tracking host such as:
+1. Log into Resend.
+2. Open `Domains`.
+3. Click the domain you’re using as the sender for this app.
+4. Go to the domain’s configuration/tracking area.
+5. Find `Open and Click Tracking`.
+6. Turn on `Open Tracking`.
+7. Give the tracking subdomain a name, usually something like:
+   - `links`
+   - or `track`
 
-        links.yourdomain.com
+That makes Resend want a tracking host such as:
 
-    Add The DNS Record
-    After you enable tracking, Resend will show you the DNS record it needs.
+- `links.yourdomain.com`
 
-        It will usually be a CNAME for the tracking subdomain.
+**Add The DNS Record**
+After you enable tracking, Resend will show you the DNS record it needs.
+It will usually be a `CNAME` for the tracking subdomain.
 
-        Go to wherever your DNS is managed.
-        Examples:
+1. Go to wherever your DNS is managed.
+   Examples:
+   - GoDaddy
+   - Cloudflare
+   - Namecheap
+   - your registrar or DNS host
+2. Add the exact `CNAME` record Resend shows.
+3. Save it.
 
-            GoDaddy
-            Cloudflare
-            Namecheap
-            your registrar or DNS host
+Important:
 
-        Add the exact CNAME record Resend shows.
-        Save it.
+- copy the values exactly from Resend
+- if Resend also shows an extra `CAA` record requirement, add that too
 
-    Important:
+**Verify In Resend**
 
-        copy the values exactly from Resend
-        if Resend also shows an extra CAA record requirement, add that too
+1. Go back to Resend.
+2. Click the verify/check button for the tracking subdomain.
+3. Wait until Resend shows it as verified/active.
 
-    Verify In Resend
+Resend says tracking is only active when both are true:
 
-        Go back to Resend.
-        Click the verify/check button for the tracking subdomain.
-        Wait until Resend shows it as verified/active.
+- tracking is enabled
+- the tracking subdomain is verified  
+  Source: https://resend.com/docs/dashboard/domains/tracking
 
-    Resend says tracking is only active when both are true:
+**Make Sure Your Webhook Already Includes Open Events**
+In your Resend webhook settings, keep:
 
-        tracking is enabled
-        the tracking subdomain is verified
+- `email.delivered`
+- `email.opened`
+- `email.clicked`
+- `email.bounced`
+- `email.complained`
+- `email.failed`
 
-    Source: https://resend.com/docs/dashboard/domains/tracking
+**Retest**
 
-    Make Sure Your Webhook Already Includes Open Events
+1. Send a fresh campaign.
+2. Open one of the emails.
+3. Wait a bit.
+4. Check:
+   - Resend webhook deliveries
+   - `email_deliveries.opened_at`
+   - campaign report page
 
-    In your Resend webhook settings, keep:
+**One Small Expectation Setter**
+Even after setup, open tracking is never perfect because it depends on image loading behavior in the mailbox client, and Gmail can be inconsistent.  
+Source: https://resend.com/docs/knowledge-base/why-are-my-open-rates-not-accurate
 
-        email.delivered
-        email.opened
-        email.clicked
-        email.bounced
-        email.complained
-        email.failed
+If you want, once you’ve enabled the tracking subdomain, I can help you sanity-check whether the Resend webhook and DNS setup look right before you send another test campaign.
 
-    Retest
+### Verification
 
-        Send a fresh campaign.
-        Open one of the emails.
-        Wait a bit.
+That looks good to me.
 
-    Check:
-    Resend webhook deliveries
-    email_deliveries.opened_at
-    campaign report page
+What you listed is consistent with a working tracking setup:
 
-    One Small Expectation Setter
+- tracking subdomain is `verified`
+- GoDaddy has a plausible CNAME mapping
+- webhook URL includes `/api/webhooks/resend`
+- `email.opened` is selected
 
-    Even after setup, open tracking is never perfect because it depends on image loading behavior in the mailbox client, and Gmail can be inconsistent.
-    Source: https://resend.com/docs/knowledge-base/why-are-my-open-rates-not-accurate
+So you’re in a good place to run the real test.
 
-    If you want, once you’ve enabled the tracking subdomain, I can help you sanity-check whether the Resend webhook and DNS setup look right before you send another test campaign.
+**What I’d do next**
+
+1. Keep `npm run dev` running.
+2. Keep `ngrok http 3000` running.
+3. Send a brand-new campaign.
+   Important: use a fresh send after tracking was verified, not an older already-sent message.
+4. Open the email in Gmail.
+5. Wait a minute or two.
+6. Check:
+   - `http://127.0.0.1:4040`
+   - Supabase `email_deliveries.opened_at`
+   - the campaign report page
+
+**What You Want To See**
+In ngrok inspector:
+
+- a webhook request from Resend for an open event
+
+In Supabase:
+
+```sql
+select status, delivered_at, opened_at, clicked_at, bounced_at
+from public.email_deliveries
+where campaign_id = 'YOUR_CAMPAIGN_UUID';
+```
+
+Expected:
+
+- `delivered_at` populated
+- `opened_at` populated for the opened recipient
+- status may move to `opened`
+
+**One tiny note**
+Your GoDaddy host `links.auth` suggests the tracking host may be something like:
+
+- `links.auth.yourdomain.com`
+
+That may be exactly what Resend asked for, which is fine. It only matters that it matches Resend’s requested host exactly.
+
+So from what you’ve shown, I do not see an obvious setup problem. The next step is really just a fresh campaign test.
+
+If you want, once you run it, send me either:
+
+- whether `email.opened` showed up in ngrok, or
+- the updated `email_deliveries` row values
+
+and I’ll help confirm whether the last mile is working.
 
 ## Render Deployment
+
+Use this order for the first Render deploy.
+
+**Create The Service**
+
+1. Push your latest code to GitHub.
+2. Log into Render.
+3. Click `New +` → `Web Service`.
+4. Connect the GitHub repo for this project.
+5. Use the existing [render.yaml](/Users/pattyharris/Documents/FlavioCopesBootcamp/AIBootcamp/Week10/render.yaml:1) blueprint if Render offers it.
+6. Confirm:
+   - service type: `web`
+   - runtime: `node`
+   - build command: `npm install && npm run build`
+   - start command: `npm run start`
+
+**Set Environment Variables**
+In Render, add these env vars:
+
+- `NEXT_PUBLIC_APP_URL`
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `RESEND_API_KEY`
+- `RESEND_AUDIENCE_FROM_EMAIL`
+- `RESEND_REPLY_TO`
+- `RESEND_WEBHOOK_SECRET`
+- `STRIPE_SECRET_KEY`
+- `STRIPE_WEBHOOK_SECRET`
+
+For `NEXT_PUBLIC_APP_URL`, use your Render app URL once Render gives it to you, for example:
+
+- `https://whats-new.onrender.com`
+
+For now, `RESEND_WEBHOOK_SECRET` can be set if Resend gives you one, but the current codebase is not yet enforcing signature verification for Resend. Keep it populated anyway for future hardening.
+
+**Deploy**
+
+1. Save the env vars.
+2. Trigger the first deploy.
+3. Wait for Render to finish building.
+
+**Update Supabase**
+In Supabase, check the Auth URL settings you’re using and make sure the Render domain is allowed.
+That usually means updating:
+
+- site URL
+- redirect URLs
+
+Add your Render domain there, for example:
+
+- `https://whats-new.onrender.com`
+
+If you still use local auth too, keep localhost alongside it.
+
+**Update Resend**
+After Render gives you the real URL:
+
+1. Open Resend webhook settings.
+2. Replace the ngrok webhook with:
+   - `https://YOUR-RENDER-DOMAIN/api/webhooks/resend`
+3. Keep these events selected:
+   - `email.delivered`
+   - `email.opened`
+   - `email.clicked`
+   - `email.bounced`
+   - `email.complained`
+   - `email.failed`
+
+**Update Stripe**
+
+1. Open Stripe webhook settings.
+2. Replace the ngrok webhook with:
+   - `https://YOUR-RENDER-DOMAIN/api/webhooks/stripe`
+3. Keep these events selected:
+   - `checkout.session.completed`
+   - `customer.subscription.created`
+   - `customer.subscription.updated`
+   - `customer.subscription.deleted`
+   - `invoice.paid`
+   - `invoice.payment_failed`
+
+If Stripe gives you a new webhook signing secret for the Render endpoint, update:
+
+- `STRIPE_WEBHOOK_SECRET`
+
+in Render env vars, then redeploy if needed.
+
+**Smoke Test In Production**
+After deploy, test this order:
+
+1. Open the Render app URL.
+2. Sign in with OTP.
+3. Confirm onboarding/dashboard loads.
+4. Open a hosted signup form and submit a test subscriber.
+5. Confirm the subscriber appears in the app.
+6. Create a segment if needed.
+7. Create and prepare a campaign.
+8. Send the campaign.
+9. Confirm:
+   - `email_deliveries` updates
+   - campaign reporting updates
+   - Resend webhook data continues to arrive
+10. Test billing:
+
+- open settings
+- run upgrade flow
+- confirm Stripe redirect returns correctly
+- test `Manage billing`
+
+**Important Notes**
+
+- Render free/starter services can sleep or feel a bit slow on cold start.
+- If anything auth-related breaks in production, the first thing to check is Supabase redirect/site URL config.
+- If webhook updates stop, the first thing to check is whether Resend/Stripe still point to the old ngrok URL.
+
+**Best Practical Approach**
+Do the first deploy, then send me:
+
+- the Render app URL
+- whether login works
+- whether the dashboard loads
+- whether one webhook test works
+
+and I can help you troubleshoot the first production pass quickly.
+
+### Environment Setup Supabase
+
+The site URL is located under Authentication, URL configuration, and is by default set to the local host path: http://localhost:3000 For remote deployment, change this to the Render URL.
+
+As of this writing, I had no redirect URLs setup.
+
+Need to verify this: If you still use local auth too, keep localhost alongside it.
+
+NOTE: the .env email type values cannot be quoted when used in Render.

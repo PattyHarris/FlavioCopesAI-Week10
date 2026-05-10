@@ -96,15 +96,18 @@ export async function processStripeWebhookEvent(event: Stripe.Event) {
         return { ignored: true, reason: "Missing newsletter_id metadata on checkout session." };
       }
 
-      const { error } = await supabase
-        .from("newsletter_subscriptions")
-        .update({
+      const { error } = await supabase.from("newsletter_subscriptions").upsert(
+        {
+          newsletter_id: newsletterId,
           billing_plan_id: billingPlanId ?? null,
           stripe_customer_id: customerId,
           stripe_subscription_id: subscriptionId,
           status: "active",
-        })
-        .eq("newsletter_id", newsletterId);
+        },
+        {
+          onConflict: "newsletter_id",
+        },
+      );
 
       if (error) {
         throw new Error(error.message);

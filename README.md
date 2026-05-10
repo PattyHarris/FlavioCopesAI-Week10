@@ -401,6 +401,14 @@ Current status:
 - Segment creation now supports both `signed up after` and `signed up before` date rules
 - Date-based audience narrowing is easier for testing and future targeting work
 
+### 2026-05-10 Billing Reliability
+
+Current status:
+
+- New newsletters now ensure a default `newsletter_subscriptions` row exists
+- Stripe checkout completion now upserts subscription state by `newsletter_id`
+- Billing no longer depends on an older seed migration having backfilled every later newsletter
+
 ## Local Test Flow
 
 To test the new hosted signup form loop locally:

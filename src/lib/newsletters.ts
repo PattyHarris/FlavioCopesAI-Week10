@@ -1,4 +1,5 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createResendClient, getResendFromEmail } from "@/lib/email/resend";
 import { slugify } from "@/lib/utils/slugify";
 
@@ -20,6 +21,59 @@ function sleep(ms: number) {
   return new Promise((resolve) => {
     setTimeout(resolve, ms);
   });
+}
+
+async function ensureNewsletterSubscriptionRow(newsletterId: string) {
+  const supabase = createSupabaseAdminClient();
+
+  const { data: existingSubscription, error: existingSubscriptionError } = await supabase
+    .from("newsletter_subscriptions")
+    .select("id")
+    .eq("newsletter_id", newsletterId)
+    .maybeSingle();
+
+  if (existingSubscriptionError) {
+    throw new Error(existingSubscriptionError.message);
+  }
+
+  if (existingSubscription) {
+    return existingSubscription;
+  }
+
+  const { data: freePlan, error: freePlanError } = await supabase
+    .from("billing_plans")
+    .select("id")
+    .eq("name", "Free")
+    .maybeSingle();
+
+  if (freePlanError) {
+    throw new Error(freePlanError.message);
+  }
+
+  if (!freePlan) {
+    throw new Error("Free billing plan not found. Run the billing seed migration first.");
+  }
+
+  const periodStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString();
+  const periodEnd = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1).toISOString();
+
+  const { data: createdSubscription, error: createError } = await supabase
+    .from("newsletter_subscriptions")
+    .insert({
+      newsletter_id: newsletterId,
+      billing_plan_id: freePlan.id,
+      status: "active",
+      current_period_start: periodStart,
+      current_period_end: periodEnd,
+    })
+    .select("id")
+    .single();
+
+  if (createError) {
+    throw new Error(createError.message);
+  }
+
+  return createdSubscription;
 }
 
 export async function getCurrentUserContext() {
@@ -126,6 +180,8 @@ export async function createNewsletterForCurrentUser(input: OnboardingInput) {
   if (newsletterError) {
     throw new Error(newsletterError.message);
   }
+
+  await ensureNewsletterSubscriptionRow(newsletter.id);
 
   return newsletter;
 }
@@ -1118,6 +1174,8 @@ export async function sendQueuedCampaignForCurrentUser(input: {
 export async function getBillingForOwnedNewsletter(slug: string) {
   const supabase = await createSupabaseServerClient();
   const { newsletter } = await getOwnedNewsletterBySlug(slug);
+
+  await ensureNewsletterSubscriptionRow(newsletter.id);
 
   const { data: subscription, error: subscriptionError } = await supabase
     .from("newsletter_subscriptions")
