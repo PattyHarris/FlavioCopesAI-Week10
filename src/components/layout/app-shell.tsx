@@ -130,7 +130,6 @@ export function AppShell({
                 ))}
               </div>
             </div>
-            <div className="command-hint">Press Cmd/Ctrl + K</div>
             <ThemeToggle />
           </div>
         </header>

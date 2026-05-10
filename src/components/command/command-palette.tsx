@@ -5,9 +5,7 @@ import { useEffect, useState } from "react";
 
 const quickActions = [
   { href: "/app", label: "Open dashboard" },
-  { href: "/app/newsletters/product-led/subscribers", label: "View subscribers" },
-  { href: "/app/newsletters/product-led/forms", label: "Open signup forms" },
-  { href: "/app/newsletters/product-led/campaigns", label: "Write campaign" },
+  { href: "/onboarding", label: "Create another newsletter" },
   { href: "/login", label: "Go to sign in" },
 ];
 
@@ -43,7 +41,7 @@ export function CommandPalette() {
         role="dialog"
       >
         <div className="command-header">
-          <span>Command palette</span>
+          <span>Quick navigation</span>
           <kbd>Esc</kbd>
         </div>
         <div className="command-list">

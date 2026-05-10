@@ -13,8 +13,8 @@
   --radius-lg: 24px;
   --radius-md: 18px;
   --radius-sm: 12px;
-  --font-heading: "Poppins", "Segoe UI", sans-serif;
-  --font-body: "Source Serif 4", Georgia, serif;
+  --font-heading: "Inter", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "Roboto", "Inter", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
 }
 
 :root[data-theme="dark"] {
@@ -153,7 +153,9 @@ select {
 }
 
 .hero-copy h1 {
-  font-size: clamp(2.75rem, 7vw, 5rem);
+  font-size: clamp(2.3rem, 5.8vw, 4.1rem);
+  line-height: 1.02;
+  letter-spacing: -0.04em;
 }
 
 .hero-copy p {
