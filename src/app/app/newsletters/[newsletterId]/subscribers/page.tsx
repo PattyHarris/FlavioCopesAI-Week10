@@ -46,9 +46,7 @@ export default async function SubscribersPage({ params }: PageProps) {
               <div className="table-row">
                 <div>
                   <strong>No subscribers yet</strong>
-                  <p className="muted-copy">
-                    Create or open a hosted form and submit it to see subscribers appear here.
-                  </p>
+                  <p className="muted-copy">Open a hosted form and submit it to watch the audience appear here.</p>
                 </div>
               </div>
             ) : (

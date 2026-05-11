@@ -55,7 +55,7 @@ export function CreateCampaign({
 
   function getCampaignActionHint(campaign: CampaignRow) {
     if (campaign.status === "draft") {
-      return "Prepare send first to generate delivery records before sending.";
+      return "Prepare the draft to create delivery records before sending.";
     }
 
     if (campaign.status === "queued") {
@@ -318,13 +318,17 @@ export function CreateCampaign({
                   </Link>
                   <button
                     className="button button-secondary"
-                    disabled={preparingCampaignId === campaign.id || campaign.status === "queued"}
+                    disabled={
+                      preparingCampaignId === campaign.id || campaign.status === "queued" || campaign.status === "sent"
+                    }
                     onClick={() => handlePrepare(campaign.id)}
                     type="button"
                   >
                     {preparingCampaignId === campaign.id
                       ? "Preparing..."
-                      : campaign.status === "queued"
+                      : campaign.status === "sent"
+                        ? "Already sent"
+                        : campaign.status === "queued"
                         ? "Prepared"
                       : "Prepare send"}
                   </button>
@@ -334,11 +338,7 @@ export function CreateCampaign({
                     onClick={() => handleSend(campaign.id)}
                     type="button"
                   >
-                    {sendingCampaignId === campaign.id
-                      ? "Sending..."
-                      : campaign.status !== "queued"
-                        ? "Prepare first"
-                        : "Send now"}
+                    {sendingCampaignId === campaign.id ? "Sending..." : "Send now"}
                   </button>
                 </div>
                 <p className="form-status">{getCampaignActionHint(campaign)}</p>

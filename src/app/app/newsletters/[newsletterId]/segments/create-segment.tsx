@@ -198,7 +198,7 @@ export function CreateSegment({
           {segments.length === 0 ? (
             <div className="hero-stat">
               <strong>No segments yet</strong>
-              <p className="muted-copy">Create one here, then use it as a campaign audience.</p>
+              <p className="muted-copy">Create one here, then reuse it as a campaign audience.</p>
             </div>
           ) : (
             segments.map((segment) => (

@@ -133,7 +133,7 @@ export function CreateForm({
           {forms.length === 0 ? (
             <div className="hero-stat">
               <strong>No forms yet</strong>
-              <p className="muted-copy">Create one to generate your first public signup URL.</p>
+              <p className="muted-copy">Create one to publish your first hosted signup page.</p>
             </div>
           ) : (
             forms.map((form) => (
