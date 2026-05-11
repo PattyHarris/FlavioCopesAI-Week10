@@ -434,6 +434,14 @@ Current status:
 - Campaign cards now explain that `Prepare send` comes before `Send now`
 - Existing users can now create additional newsletters through the same onboarding flow
 
+### 2026-05-11 Campaign Editor Upgrade
+
+Current status:
+
+- Campaign creation now uses a built-in rich text editor instead of a plain textarea
+- Subject, preview text, and HTML campaign content continue to save through the existing draft flow
+- The compose view now includes a live preview so formatting is visible before the draft is created
+
 ## Local Test Flow
 
 To test the new hosted signup form loop locally:

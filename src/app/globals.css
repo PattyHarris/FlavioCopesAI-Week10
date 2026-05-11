@@ -641,6 +641,102 @@ select {
   resize: vertical;
 }
 
+.rich-editor {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.rich-editor-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  padding: 0.75rem 0.85rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-soft);
+}
+
+.rich-editor-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.rich-editor-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.25rem;
+  padding: 0.45rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.rich-editor-button:hover {
+  border-color: rgba(99, 102, 241, 0.28);
+}
+
+.rich-editor-surface {
+  min-height: 260px;
+  padding: 1rem;
+  color: var(--text);
+  line-height: 1.65;
+  outline: none;
+}
+
+.rich-editor-surface:empty::before {
+  content: attr(data-placeholder);
+  color: var(--text-muted);
+}
+
+.rich-editor-surface h2,
+.campaign-preview-surface h2 {
+  margin: 1.1rem 0 0.45rem;
+  font-family: var(--font-heading);
+  font-size: 1.35rem;
+}
+
+.rich-editor-surface p,
+.campaign-preview-surface p,
+.rich-editor-surface ul,
+.campaign-preview-surface ul,
+.rich-editor-surface blockquote,
+.campaign-preview-surface blockquote {
+  margin: 0.65rem 0;
+}
+
+.rich-editor-surface blockquote,
+.campaign-preview-surface blockquote {
+  padding-left: 0.95rem;
+  border-left: 3px solid rgba(99, 102, 241, 0.32);
+  color: var(--text-muted);
+}
+
+.campaign-preview-card {
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-soft);
+}
+
+.campaign-preview-surface {
+  margin-top: 0.75rem;
+  padding: 1rem;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  line-height: 1.65;
+}
+
+.preview-placeholder {
+  color: var(--text-muted);
+}
+
 .color-row {
   display: grid;
   gap: 1rem;

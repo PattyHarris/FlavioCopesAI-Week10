@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { FormEvent, useState } from "react";
 
+import { RichTextEditor } from "@/components/editor/rich-text-editor";
+
 type SegmentOption = {
   id: string;
   name: string;
@@ -53,6 +55,10 @@ export function CreateCampaign({
   const [preparingCampaignId, setPreparingCampaignId] = useState<string | null>(null);
   const [sendingCampaignId, setSendingCampaignId] = useState<string | null>(null);
 
+  function getBodyText(html: string) {
+    return html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+  }
+
   function getCampaignActionHint(campaign: CampaignRow) {
     if (campaign.status === "draft") {
       return "Prepare the draft to create delivery records before sending.";
@@ -71,6 +77,11 @@ export function CreateCampaign({
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!getBodyText(bodyHtml)) {
+      setMessage("Add some campaign content before creating the draft.");
+      return;
+    }
+
     setIsSubmitting(true);
     setMessage("Creating campaign draft...");
 
@@ -255,13 +266,26 @@ export function CreateCampaign({
           </label>
           <label className="field">
             <span className="field-label">Body</span>
-            <textarea
-              onChange={(event) => setBodyHtml(event.target.value)}
-              placeholder="Write the newsletter content here. We can swap this to a richer editor later."
-              required
+            <RichTextEditor
+              onChange={setBodyHtml}
+              placeholder="Write your newsletter here. Add headings, lists, quotes, and links."
               value={bodyHtml}
             />
           </label>
+          <div className="campaign-preview-card">
+            <div className="item-header">
+              <strong>Live preview</strong>
+              <span className="muted-copy">This mirrors the rich text content that will be saved with the draft.</span>
+            </div>
+            <div
+              className="campaign-preview-surface"
+              dangerouslySetInnerHTML={{
+                __html:
+                  bodyHtml ||
+                  "<p class='preview-placeholder'>Your formatted campaign content will appear here.</p>",
+              }}
+            />
+          </div>
           <div className="form-actions">
             <button className="button button-primary" disabled={isSubmitting} type="submit">
               {isSubmitting ? "Creating..." : "Create campaign draft"}
