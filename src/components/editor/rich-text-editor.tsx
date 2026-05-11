@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type RichTextEditorProps = {
   value: string;
@@ -28,6 +28,15 @@ const blockActions: Array<{
 
 export function RichTextEditor({ value, onChange, placeholder = "Write your campaign..." }: RichTextEditorProps) {
   const editorRef = useRef<HTMLDivElement | null>(null);
+  const [activeStates, setActiveStates] = useState({
+    bold: false,
+    italic: false,
+    underline: false,
+    unorderedList: false,
+    heading: false,
+    paragraph: true,
+    quote: false,
+  });
 
   useEffect(() => {
     const editor = editorRef.current;
@@ -41,6 +50,39 @@ export function RichTextEditor({ value, onChange, placeholder = "Write your camp
     }
   }, [value]);
 
+  useEffect(() => {
+    function syncToolbarState() {
+      const editor = editorRef.current;
+      const selection = window.getSelection();
+
+      if (!editor || !selection || selection.rangeCount === 0) {
+        return;
+      }
+
+      const anchorNode = selection.anchorNode;
+
+      if (anchorNode && !editor.contains(anchorNode)) {
+        return;
+      }
+
+      const block = anchorNode instanceof Element ? anchorNode.closest("h2, p, blockquote") : anchorNode?.parentElement?.closest("h2, p, blockquote");
+      const blockTag = block?.tagName?.toLowerCase() ?? "p";
+
+      setActiveStates({
+        bold: document.queryCommandState("bold"),
+        italic: document.queryCommandState("italic"),
+        underline: document.queryCommandState("underline"),
+        unorderedList: document.queryCommandState("insertUnorderedList"),
+        heading: blockTag === "h2",
+        paragraph: blockTag === "p",
+        quote: blockTag === "blockquote",
+      });
+    }
+
+    document.addEventListener("selectionchange", syncToolbarState);
+    return () => document.removeEventListener("selectionchange", syncToolbarState);
+  }, []);
+
   function focusEditor() {
     editorRef.current?.focus();
   }
@@ -49,10 +91,20 @@ export function RichTextEditor({ value, onChange, placeholder = "Write your camp
     onChange(editorRef.current?.innerHTML ?? "");
   }
 
+  function refreshToolbarState() {
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0) {
+      return;
+    }
+
+    document.dispatchEvent(new Event("selectionchange"));
+  }
+
   function runCommand(command: string, commandValue?: string) {
     focusEditor();
     document.execCommand(command, false, commandValue);
     syncValue();
+    refreshToolbarState();
   }
 
   function insertLink() {
@@ -65,10 +117,12 @@ export function RichTextEditor({ value, onChange, placeholder = "Write your camp
 
     document.execCommand("createLink", false, url);
     syncValue();
+    refreshToolbarState();
   }
 
   function handleInput() {
     syncValue();
+    refreshToolbarState();
   }
 
   return (
@@ -77,7 +131,7 @@ export function RichTextEditor({ value, onChange, placeholder = "Write your camp
         <div className="rich-editor-group">
           {formatActions.map((action) => (
             <button
-              className="rich-editor-button"
+              className={`rich-editor-button ${activeStates[action.command as keyof typeof activeStates] ? "rich-editor-button-active" : ""}`}
               key={action.command}
               onClick={() => runCommand(action.command)}
               title={action.title}
@@ -90,7 +144,14 @@ export function RichTextEditor({ value, onChange, placeholder = "Write your camp
         <div className="rich-editor-group">
           {blockActions.map((action) => (
             <button
-              className="rich-editor-button"
+              className={`rich-editor-button ${
+                (action.label === "H2" && activeStates.heading) ||
+                (action.label === "P" && activeStates.paragraph) ||
+                (action.label === "• List" && activeStates.unorderedList) ||
+                (action.label === "Quote" && activeStates.quote)
+                  ? "rich-editor-button-active"
+                  : ""
+              }`}
               key={`${action.command}-${action.label}`}
               onClick={() => runCommand(action.command, action.value)}
               title={action.title}
