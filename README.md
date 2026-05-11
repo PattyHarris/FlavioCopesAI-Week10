@@ -425,6 +425,13 @@ Current status:
 - Billing/settings now uses a cleaner summary strip and quieter support copy
 - Repetitive helper text is being reduced in favor of denser, calmer product language
 
+### 2026-05-11 Audience Surface Cleanup
+
+Current status:
+
+- Forms, subscribers, and segments pages now use tighter intros and calmer status messaging
+- Topbar identity chip tooltips are less likely to clip and now support multi-line content
+
 ## Local Test Flow
 
 To test the new hosted signup form loop locally:

@@ -19,10 +19,7 @@ export default async function FormsPage({ params }: PageProps) {
         <section className="card">
           <p className="eyebrow">Forms</p>
           <h2>{newsletter.name}: hosted forms and embeddable widgets</h2>
-          <p className="muted-copy">
-            Create a form here, open its public URL locally, and submit it to verify subscriber capture with
-            `source_list_id`.
-          </p>
+          <p className="muted-copy">Create hosted signup points and reuse them across campaigns and audience reports.</p>
         </section>
         <CreateForm initialForms={forms} newsletterSlug={newsletter.slug} />
       </>

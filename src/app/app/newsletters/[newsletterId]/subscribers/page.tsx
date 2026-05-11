@@ -18,10 +18,7 @@ export default async function SubscribersPage({ params }: PageProps) {
         <section className="card">
           <p className="eyebrow">Subscribers</p>
           <h2>{newsletter.name}: single audience pool</h2>
-          <p className="muted-copy">
-            Everyone belongs to the newsletter itself, and each subscriber keeps the form they came from through
-            `source_list_id`.
-          </p>
+          <p className="muted-copy">Track one newsletter audience with source attribution preserved from signup through sending.</p>
         </section>
 
         <section className="stats-grid">
@@ -56,7 +53,7 @@ export default async function SubscribersPage({ params }: PageProps) {
               </div>
             ) : (
               subscribers.map((subscriber) => (
-                <div className="table-row" key={subscriber.id}>
+                <div className="table-row table-row-rich" key={subscriber.id}>
                   <div>
                     <strong>
                       {subscriber.first_name || subscriber.last_name

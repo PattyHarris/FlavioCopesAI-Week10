@@ -301,6 +301,7 @@ select {
   border-radius: var(--radius-md);
   background: rgba(255, 255, 255, 0.76);
   box-shadow: var(--shadow);
+  overflow: visible;
 }
 
 :root[data-theme="dark"] .topbar {
@@ -354,6 +355,7 @@ select {
   top: calc(100% + 0.55rem);
   right: 0;
   min-width: 12rem;
+  max-width: 18rem;
   padding: 0.65rem 0.8rem;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
@@ -363,6 +365,8 @@ select {
   font-family: var(--font-body);
   font-size: 0.86rem;
   line-height: 1.4;
+  white-space: normal;
+  word-break: break-word;
   opacity: 0;
   pointer-events: none;
   transform: translateY(-4px);

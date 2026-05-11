@@ -19,9 +19,7 @@ export default async function SegmentsPage({ params }: PageProps) {
         <section className="card">
           <p className="eyebrow">Segments</p>
           <h2>{newsletter.name}: rule-based audience filters</h2>
-          <p className="muted-copy">
-            Segment rules are stored as JSON and resolved dynamically. This first pass supports single-rule segments.
-          </p>
+          <p className="muted-copy">Build reusable audience slices from form source, subscriber state, or signup timing.</p>
         </section>
         <CreateSegment forms={forms} initialSegments={segments} newsletterSlug={newsletter.slug} />
       </>

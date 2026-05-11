@@ -109,9 +109,7 @@ export function CreateSegment({
       <article className="card">
         <p className="eyebrow">Create segment</p>
         <h2>Define a simple audience rule</h2>
-        <p className="helper-copy">
-          First pass: create one-rule segments by source form, subscriber status, or signup date window.
-        </p>
+        <div className="inline-note">Start with a single rule, then use the saved segment as a campaign audience.</div>
         <form onSubmit={handleSubmit}>
           <label className="field">
             <span className="field-label">Segment name</span>
@@ -190,7 +188,7 @@ export function CreateSegment({
               {isSubmitting ? "Creating..." : "Create segment"}
             </button>
           </div>
-          <p className="helper-copy">{message}</p>
+          <p className="form-status">{message}</p>
         </form>
       </article>
 
@@ -205,11 +203,11 @@ export function CreateSegment({
           ) : (
             segments.map((segment) => (
               <div className="hero-stat" key={segment.id}>
-                <strong>{segment.name}</strong>
-                <p className="muted-copy">{segment.description || "No description yet."}</p>
-                <div className="stack-row">
-                  <span className="badge">{segment.audienceSize} subscribers</span>
+                <div className="item-header">
+                  <strong>{segment.name}</strong>
+                  <span className="muted-copy">{segment.audienceSize} subscribers</span>
                 </div>
+                <p className="muted-copy">{segment.description || "No description yet."}</p>
                 <div className="rule-list">
                   {segment.ruleDescriptions.map((rule) => (
                     <p className="muted-copy" key={rule}>

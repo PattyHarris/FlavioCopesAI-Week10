@@ -85,6 +85,7 @@ export function CreateForm({
       <article className="card">
         <p className="eyebrow">Create form</p>
         <h2>Build a hosted signup entry point</h2>
+        <div className="inline-note">Each form feeds the same newsletter audience while preserving source attribution.</div>
         <form onSubmit={handleSubmit}>
           <label className="field">
             <span>Form name</span>
@@ -122,7 +123,7 @@ export function CreateForm({
               {isSubmitting ? "Creating..." : "Create newsletter form"}
             </button>
           </div>
-          <p className="muted-copy">{message}</p>
+          <p className="form-status">{message}</p>
         </form>
       </article>
 
@@ -137,8 +138,11 @@ export function CreateForm({
           ) : (
             forms.map((form) => (
               <div className="hero-stat" key={form.id}>
-                <strong>{form.name}</strong>
-                <p className="muted-copy">{form.heading}</p>
+                <div className="item-header">
+                  <strong>{form.name}</strong>
+                  <span className="muted-copy">{form.heading}</span>
+                </div>
+                {form.description ? <p className="muted-copy">{form.description}</p> : null}
                 <div className="form-actions">
                   <Link className="button button-secondary" href={`/forms/${newsletterSlug}/${form.slug}`} target="_blank">
                     Open public page
