@@ -107,6 +107,18 @@ export function RichTextEditor({ value, onChange, placeholder = "Write your camp
     refreshToolbarState();
   }
 
+  function handleBlockAction(label: string, command: string, commandValue?: string) {
+    const isHeading = label === "H2" && activeStates.heading;
+    const isQuote = label === "Quote" && activeStates.quote;
+
+    if (isHeading || isQuote) {
+      runCommand("formatBlock", "p");
+      return;
+    }
+
+    runCommand(command, commandValue);
+  }
+
   function insertLink() {
     focusEditor();
     const url = window.prompt("Enter a full URL for this link", "https://");
@@ -153,7 +165,7 @@ export function RichTextEditor({ value, onChange, placeholder = "Write your camp
                   : ""
               }`}
               key={`${action.command}-${action.label}`}
-              onClick={() => runCommand(action.command, action.value)}
+              onClick={() => handleBlockAction(action.label, action.command, action.value)}
               title={action.title}
               type="button"
             >
