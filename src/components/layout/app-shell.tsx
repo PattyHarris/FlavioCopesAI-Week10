@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { cn } from "@/lib/utils/cn";
@@ -28,15 +28,19 @@ export function AppShell({
   userName: string | null;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
+  const matchedNewsletterSlug = pathname.match(/\/app\/newsletters\/([^/]+)/)?.[1];
+  const activeNewsletter =
+    newsletters.find((newsletter) => newsletter.slug === matchedNewsletterSlug) ?? currentNewsletter;
   const navigation = [
     { href: "/app", label: "Overview" },
-    { href: `/app/newsletters/${currentNewsletter.slug}/subscribers`, label: "Subscribers" },
-    { href: `/app/newsletters/${currentNewsletter.slug}/forms`, label: "Forms" },
-    { href: `/app/newsletters/${currentNewsletter.slug}/segments`, label: "Segments" },
-    { href: `/app/newsletters/${currentNewsletter.slug}/campaigns`, label: "Campaigns" },
-    { href: `/app/newsletters/${currentNewsletter.slug}/settings`, label: "Settings" },
+    { href: `/app/newsletters/${activeNewsletter.slug}/subscribers`, label: "Subscribers" },
+    { href: `/app/newsletters/${activeNewsletter.slug}/forms`, label: "Forms" },
+    { href: `/app/newsletters/${activeNewsletter.slug}/segments`, label: "Segments" },
+    { href: `/app/newsletters/${activeNewsletter.slug}/campaigns`, label: "Campaigns" },
+    { href: `/app/newsletters/${activeNewsletter.slug}/settings`, label: "Settings" },
   ];
 
   function getPageTitle() {
@@ -93,6 +97,10 @@ export function AppShell({
     }
   }
 
+  function handleNewsletterChange(nextSlug: string) {
+    router.push(`/app/newsletters/${nextSlug}/settings`);
+  }
+
   return (
     <div className="app-shell">
       <aside className={cn("sidebar", isMenuOpen && "sidebar-open")}>
@@ -133,7 +141,7 @@ export function AppShell({
               Menu
             </button>
             <div className="topbar-copy">
-              <p className="eyebrow">{currentNewsletter.name}</p>
+              <p className="eyebrow">{activeNewsletter.name}</p>
               <h1>{pageTitle}</h1>
             </div>
           </div>
@@ -141,10 +149,10 @@ export function AppShell({
             <div className="topbar-meta">
               <div className="icon-chip-row">
                 <Link
-                  aria-label={`Current newsletter ${currentNewsletter.name}`}
+                  aria-label={`Current newsletter ${activeNewsletter.name}`}
                   className="icon-chip"
-                  data-tooltip={`${currentNewsletter.name} (${currentNewsletter.slug})`}
-                  href={`/app/newsletters/${currentNewsletter.slug}/settings`}
+                  data-tooltip={`${activeNewsletter.name} (${activeNewsletter.slug})`}
+                  href={`/app/newsletters/${activeNewsletter.slug}/settings`}
                 >
                   N
                 </Link>
@@ -156,20 +164,33 @@ export function AppShell({
                   @
                 </span>
                 {newsletters.length > 1 ? (
-                  <Link
+                  <span
                     aria-label={`${newsletters.length} newsletters available`}
                     className="icon-chip"
                     data-tooltip={newsletters.map((newsletter) => newsletter.name).join(" | ")}
-                    href={`/app/newsletters/${currentNewsletter.slug}/settings`}
                   >
                     {newsletters.length}
-                  </Link>
+                  </span>
                 ) : null}
               </div>
+              <label className="newsletter-switcher">
+                <span className="sr-only">Choose newsletter</span>
+                <select
+                  className="select-input compact-select"
+                  onChange={(event) => handleNewsletterChange(event.target.value)}
+                  value={activeNewsletter.slug}
+                >
+                  {newsletters.map((newsletter) => (
+                    <option key={newsletter.id} value={newsletter.slug}>
+                      {newsletter.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
               <Link className="button button-secondary" href="/onboarding">
                 New newsletter
               </Link>
-              <Link className="button button-secondary" href={`/app/newsletters/${currentNewsletter.slug}/settings`}>
+              <Link className="button button-secondary" href={`/app/newsletters/${activeNewsletter.slug}/settings`}>
                 Edit newsletter
               </Link>
             </div>
