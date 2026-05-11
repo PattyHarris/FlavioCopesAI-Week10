@@ -17,39 +17,40 @@ export default function MarketingHomePage() {
               Sign in
             </Link>
             <Link className="button button-primary" href="/app">
-              Open app
+              Open workspace
             </Link>
           </div>
         </header>
 
         <section className="hero-panel">
           <div className="hero-copy">
-            <p className="eyebrow">Newsletter infrastructure for modern teams</p>
-            <h1>Run forms, campaigns, segments, and billing from one calm workspace.</h1>
+            <p className="eyebrow">Newsletter software with a calmer center of gravity</p>
+            <h1>Publish, grow, and bill from one workspace that stays readable as the product grows.</h1>
             <p>
-              `What&apos;s new` is designed like a serious product, not a toy dashboard. Create newsletters,
-              grow a clean subscriber graph, send campaigns, and track performance from a document-like interface.
+              What&apos;s new brings forms, subscriber growth, campaigns, delivery reporting, and billing into one
+              deliberate product surface. It is built for teams that want fewer scattered tools and fewer accidental
+              lists.
             </p>
             <div className="form-actions">
               <Link className="button button-primary" href="/app">
-                Explore the dashboard scaffold
+                Explore the workspace
               </Link>
               <Link className="button button-secondary" href="/login">
-                Try OTP sign-in flow
+                Try email OTP
               </Link>
             </div>
             <div className="hero-stats">
               <div className="hero-stat">
+                <p className="eyebrow">Audience model</p>
+                <strong>One subscriber pool per newsletter</strong>
+              </div>
+              <div className="hero-stat">
+                <p className="eyebrow">Campaign flow</p>
+                <strong>Draft, queue, send, report</strong>
+              </div>
+              <div className="hero-stat">
                 <p className="eyebrow">Billing model</p>
-                <strong>Usage based</strong>
-              </div>
-              <div className="hero-stat">
-                <p className="eyebrow">Acquisition</p>
-                <strong>Hosted + embedded forms</strong>
-              </div>
-              <div className="hero-stat">
-                <p className="eyebrow">Sending</p>
-                <strong>Resend-ready</strong>
+                <strong>Usage based with Stripe</strong>
               </div>
             </div>
           </div>
@@ -64,7 +65,7 @@ export default function MarketingHomePage() {
                   <span className="badge">{newsletter.revenue} MRR</span>
                 </div>
                 <p className="muted-copy">
-                  {newsletter.forms} forms, {newsletter.campaigns} campaigns, one shared audience pool.
+                  {newsletter.forms} forms, {newsletter.campaigns} campaigns, one deliberate audience graph.
                 </p>
               </article>
             ))}
@@ -74,24 +75,24 @@ export default function MarketingHomePage() {
         <section className="section-block feature-grid">
           <article className="card">
             <p className="eyebrow">Audience model</p>
-            <h3>Newsletter-owned subscribers</h3>
+            <h3>Subscribers belong to the newsletter</h3>
             <p className="muted-copy">
-              Forms are acquisition channels, not separate lists. That keeps segments and campaign targeting sane.
+              Hosted forms and widgets are acquisition channels, not separate lists, so segmentation stays coherent.
             </p>
           </article>
           <article className="card">
-            <p className="eyebrow">Sending model</p>
-            <h3>Campaigns with delivery records</h3>
+            <p className="eyebrow">Delivery model</p>
+            <h3>Every send becomes a reportable record</h3>
             <p className="muted-copy">
-              Every recipient gets an email delivery row so sent, delivered, opened, clicked, and bounced events can
-              roll up cleanly.
+              Sent, delivered, opened, clicked, and bounced states are captured per recipient so reporting can stay
+              honest.
             </p>
           </article>
           <article className="card">
-            <p className="eyebrow">Product posture</p>
-            <h3>Built like a SaaS platform</h3>
+            <p className="eyebrow">Operational posture</p>
+            <h3>Ready for billing, auth, and deployment</h3>
             <p className="muted-copy">
-              Dark mode, command palette, responsive shell, and deployable server routes are part of the base.
+              Supabase, Resend, Stripe, and Render are part of the working system rather than a hand-wavy future plan.
             </p>
           </article>
         </section>

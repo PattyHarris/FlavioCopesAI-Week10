@@ -140,28 +140,30 @@ export function AppShell({
           <div className="topbar-actions">
             <div className="topbar-meta">
               <div className="icon-chip-row">
-                <span
+                <Link
                   aria-label={`Current newsletter ${currentNewsletter.name}`}
                   className="icon-chip"
-                  title={`${currentNewsletter.name} (${currentNewsletter.slug})`}
+                  data-tooltip={`${currentNewsletter.name} (${currentNewsletter.slug})`}
+                  href={`/app/newsletters/${currentNewsletter.slug}/settings`}
                 >
                   N
-                </span>
+                </Link>
                 <span
                   aria-label={`Signed in as ${userEmail}`}
                   className="icon-chip"
-                  title={userName ? `${userName} (${userEmail})` : userEmail}
+                  data-tooltip={userName ? `${userName} (${userEmail})` : userEmail}
                 >
                   @
                 </span>
                 {newsletters.length > 1 ? (
-                  <span
+                  <Link
                     aria-label={`${newsletters.length} newsletters available`}
                     className="icon-chip"
-                    title={newsletters.map((newsletter) => newsletter.name).join(" | ")}
+                    data-tooltip={newsletters.map((newsletter) => newsletter.name).join(" | ")}
+                    href={`/app/newsletters/${currentNewsletter.slug}/settings`}
                   >
                     {newsletters.length}
-                  </span>
+                  </Link>
                 ) : null}
               </div>
               <Link className="button button-secondary" href={`/app/newsletters/${currentNewsletter.slug}/settings`}>
