@@ -39,6 +39,40 @@ export function AppShell({
     { href: `/app/newsletters/${currentNewsletter.slug}/settings`, label: "Settings" },
   ];
 
+  function getPageTitle() {
+    if (pathname === "/app") {
+      return "Overview";
+    }
+
+    if (pathname.includes("/subscribers")) {
+      return "Subscribers";
+    }
+
+    if (pathname.includes("/forms")) {
+      return "Forms";
+    }
+
+    if (pathname.includes("/segments")) {
+      return "Segments";
+    }
+
+    if (pathname.includes("/campaigns/")) {
+      return "Campaign report";
+    }
+
+    if (pathname.includes("/campaigns")) {
+      return "Campaigns";
+    }
+
+    if (pathname.includes("/settings")) {
+      return "Settings";
+    }
+
+    return "Workspace";
+  }
+
+  const pageTitle = getPageTitle();
+
   async function handleSignOut() {
     setIsSigningOut(true);
 
@@ -98,37 +132,41 @@ export function AppShell({
             <button className="ghost-button mobile-only" onClick={() => setIsMenuOpen(true)} type="button">
               Menu
             </button>
-            <div>
-              <p className="eyebrow">Workspace</p>
-              <h1>Newsletter OS</h1>
+            <div className="topbar-copy">
+              <p className="eyebrow">{currentNewsletter.name}</p>
+              <h1>{pageTitle}</h1>
             </div>
           </div>
           <div className="topbar-actions">
-            <div className="workspace-context">
-              <div className="context-card">
-                <span className="context-label">Current newsletter</span>
-                <strong>{currentNewsletter.name}</strong>
-                <span>{currentNewsletter.slug}</span>
-              </div>
-              <div className="context-card context-card-account">
-                <span className="context-label">Signed in as</span>
-                <strong>{userName || userEmail}</strong>
-                <span>{userEmail}</span>
-              </div>
-              <div className="context-switcher">
-                {newsletters.map((newsletter) => (
-                  <Link
-                    className={cn(
-                      "context-chip",
-                      newsletter.slug === currentNewsletter.slug && "context-chip-active",
-                    )}
-                    href={`/app/newsletters/${newsletter.slug}/settings`}
-                    key={newsletter.id}
+            <div className="topbar-meta">
+              <div className="icon-chip-row">
+                <span
+                  aria-label={`Current newsletter ${currentNewsletter.name}`}
+                  className="icon-chip"
+                  title={`${currentNewsletter.name} (${currentNewsletter.slug})`}
+                >
+                  N
+                </span>
+                <span
+                  aria-label={`Signed in as ${userEmail}`}
+                  className="icon-chip"
+                  title={userName ? `${userName} (${userEmail})` : userEmail}
+                >
+                  @
+                </span>
+                {newsletters.length > 1 ? (
+                  <span
+                    aria-label={`${newsletters.length} newsletters available`}
+                    className="icon-chip"
+                    title={newsletters.map((newsletter) => newsletter.name).join(" | ")}
                   >
-                    {newsletter.name}
-                  </Link>
-                ))}
+                    {newsletters.length}
+                  </span>
+                ) : null}
               </div>
+              <Link className="button button-secondary" href={`/app/newsletters/${currentNewsletter.slug}/settings`}>
+                Edit newsletter
+              </Link>
             </div>
             <ThemeToggle />
           </div>
