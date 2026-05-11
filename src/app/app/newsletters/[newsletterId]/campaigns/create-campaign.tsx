@@ -53,6 +53,22 @@ export function CreateCampaign({
   const [preparingCampaignId, setPreparingCampaignId] = useState<string | null>(null);
   const [sendingCampaignId, setSendingCampaignId] = useState<string | null>(null);
 
+  function getCampaignActionHint(campaign: CampaignRow) {
+    if (campaign.status === "draft") {
+      return "Prepare send first to generate delivery records before sending.";
+    }
+
+    if (campaign.status === "queued") {
+      return `${campaign.queuedRecipients} deliveries are ready to send.`;
+    }
+
+    if (campaign.status === "sent") {
+      return "Sent campaigns stay here for reporting and follow-up review.";
+    }
+
+    return "Review the report or continue with the next step.";
+  }
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setIsSubmitting(true);
@@ -318,9 +334,14 @@ export function CreateCampaign({
                     onClick={() => handleSend(campaign.id)}
                     type="button"
                   >
-                    {sendingCampaignId === campaign.id ? "Sending..." : "Send now"}
+                    {sendingCampaignId === campaign.id
+                      ? "Sending..."
+                      : campaign.status !== "queued"
+                        ? "Prepare first"
+                        : "Send now"}
                   </button>
                 </div>
+                <p className="form-status">{getCampaignActionHint(campaign)}</p>
               </div>
             ))
           )}

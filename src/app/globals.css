@@ -291,6 +291,8 @@ select {
 }
 
 .topbar {
+  position: relative;
+  z-index: 12;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -371,7 +373,7 @@ select {
   pointer-events: none;
   transform: translateY(-4px);
   transition: opacity 140ms ease, transform 140ms ease;
-  z-index: 8;
+  z-index: 20;
 }
 
 .icon-chip:hover::after,
