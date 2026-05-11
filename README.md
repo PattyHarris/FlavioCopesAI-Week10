@@ -432,6 +432,7 @@ Current status:
 - Forms, subscribers, and segments pages now use tighter intros and calmer status messaging
 - Topbar identity chip tooltips are less likely to clip and now support multi-line content
 - Campaign cards now explain that `Prepare send` comes before `Send now`
+- Existing users can now create additional newsletters through the same onboarding flow
 
 ## Local Test Flow
 

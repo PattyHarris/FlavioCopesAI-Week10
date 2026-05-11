@@ -45,7 +45,7 @@ export function OnboardingForm({
         throw new Error(payload.error ?? "Unable to create your newsletter.");
       }
 
-      setMessage(payload.message ?? "Your workspace is ready.");
+      setMessage(payload.message ?? "Your newsletter is ready.");
       router.push(payload.redirectTo ?? "/app");
       router.refresh();
     } catch (error) {

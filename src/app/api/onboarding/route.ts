@@ -24,7 +24,7 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json({
-      message: "Your first newsletter is ready.",
+      message: "Your newsletter is ready.",
       newsletter,
       redirectTo: `/app/newsletters/${newsletter.slug}/settings`,
     });

@@ -166,6 +166,9 @@ export function AppShell({
                   </Link>
                 ) : null}
               </div>
+              <Link className="button button-secondary" href="/onboarding">
+                New newsletter
+              </Link>
               <Link className="button button-secondary" href={`/app/newsletters/${currentNewsletter.slug}/settings`}>
                 Edit newsletter
               </Link>
