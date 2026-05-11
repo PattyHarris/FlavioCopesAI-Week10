@@ -1,7 +1,29 @@
 import Link from "next/link";
 
 import { ThemeToggle } from "@/components/layout/theme-toggle";
-import { newsletterSummaries } from "@/lib/mock/data";
+
+const featuredNewsletters = [
+  {
+    id: "operator-brief",
+    name: "Operator Brief",
+    subscribers: 4821,
+    forms: 4,
+    campaigns: 18,
+    openRate: "42.8%",
+    revenue: "$612",
+    description: "Weekly product changes, customer signals, and shipping notes collected into one steady team digest.",
+  },
+  {
+    id: "sunday-correspondence",
+    name: "Sunday Correspondence",
+    subscribers: 1294,
+    forms: 2,
+    campaigns: 9,
+    openRate: "51.3%",
+    revenue: "$184",
+    description: "A slower editorial letter for members who want thoughtful updates instead of another noisy blast.",
+  },
+];
 
 export default function MarketingHomePage() {
   return (
@@ -56,7 +78,7 @@ export default function MarketingHomePage() {
           </div>
 
           <div className="hero-preview">
-            {newsletterSummaries.map((newsletter) => (
+            {featuredNewsletters.map((newsletter) => (
               <article className="card" key={newsletter.id}>
                 <p className="eyebrow">{newsletter.name}</p>
                 <h3>{newsletter.subscribers.toLocaleString()} subscribers</h3>
@@ -64,6 +86,7 @@ export default function MarketingHomePage() {
                   <span className="badge">{newsletter.openRate} open rate</span>
                   <span className="badge">{newsletter.revenue} MRR</span>
                 </div>
+                <p className="muted-copy">{newsletter.description}</p>
                 <p className="muted-copy">
                   {newsletter.forms} forms, {newsletter.campaigns} campaigns, one deliberate audience graph.
                 </p>
