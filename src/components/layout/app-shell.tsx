@@ -147,7 +147,29 @@ export function AppShell({
           </div>
           <div className="topbar-actions">
             <div className="topbar-meta">
-              <div className="icon-chip-row">
+              <div className="topbar-context">
+                <div className="topbar-context-copy">
+                  <span className="context-label">Newsletter</span>
+                  <label className="newsletter-switcher">
+                    <span className="sr-only">Choose newsletter</span>
+                    <select
+                      className="select-input compact-select"
+                      onChange={(event) => handleNewsletterChange(event.target.value)}
+                      value={activeNewsletter.slug}
+                    >
+                      {newsletters.map((newsletter) => (
+                        <option key={newsletter.id} value={newsletter.slug}>
+                          {newsletter.name}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                </div>
+                <div className="icon-chip-row">
+                  <span className="context-count">{newsletters.length} total</span>
+                </div>
+              </div>
+              <div className="topbar-identity">
                 <Link
                   aria-label={`Current newsletter ${activeNewsletter.name}`}
                   className="icon-chip"
@@ -173,26 +195,14 @@ export function AppShell({
                   </span>
                 ) : null}
               </div>
-              <label className="newsletter-switcher">
-                <span className="sr-only">Choose newsletter</span>
-                <select
-                  className="select-input compact-select"
-                  onChange={(event) => handleNewsletterChange(event.target.value)}
-                  value={activeNewsletter.slug}
-                >
-                  {newsletters.map((newsletter) => (
-                    <option key={newsletter.id} value={newsletter.slug}>
-                      {newsletter.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <Link className="button button-secondary" href="/onboarding">
-                New newsletter
-              </Link>
-              <Link className="button button-secondary" href={`/app/newsletters/${activeNewsletter.slug}/settings`}>
-                Edit newsletter
-              </Link>
+              <div className="topbar-toolbar">
+                <Link className="button button-secondary" href="/onboarding">
+                  New newsletter
+                </Link>
+                <Link className="button button-secondary" href={`/app/newsletters/${activeNewsletter.slug}/settings`}>
+                  Edit newsletter
+                </Link>
+              </div>
             </div>
             <ThemeToggle />
           </div>

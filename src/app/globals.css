@@ -338,6 +338,48 @@ select {
   gap: 0.7rem;
 }
 
+.topbar-context,
+.topbar-identity,
+.topbar-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.topbar-context {
+  padding: 0.45rem 0.5rem 0.45rem 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+}
+
+.topbar-context-copy {
+  display: grid;
+  gap: 0.12rem;
+}
+
+.context-label {
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.context-count {
+  color: var(--text-muted);
+  font-size: 0.86rem;
+  white-space: nowrap;
+}
+
+.topbar-identity,
+.topbar-toolbar {
+  padding: 0.25rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+}
+
 .icon-chip-row {
   display: flex;
   align-items: center;
@@ -396,11 +438,21 @@ select {
 }
 
 .newsletter-switcher {
-  min-width: 12rem;
+  min-width: 15rem;
 }
 
 .compact-select {
-  padding: 0.7rem 2.1rem 0.7rem 0.9rem;
+  padding: 0.55rem 2.15rem 0.55rem 0.8rem;
+  border: 0;
+  background: transparent;
+  font-family: var(--font-heading);
+  font-size: 0.96rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.compact-select:focus {
+  outline: none;
 }
 
 .page-frame {
@@ -705,6 +757,10 @@ select {
   margin-top: 0.6rem;
 }
 
+.report-header-row {
+  margin-bottom: 0.8rem;
+}
+
 .report-summary p {
   margin: 0;
 }
@@ -802,8 +858,22 @@ select {
     flex-direction: column;
   }
 
-  .topbar-meta {
+  .topbar-meta,
+  .topbar-context,
+  .topbar-toolbar {
+    width: 100%;
+  }
+
+  .topbar-meta,
+  .topbar-context,
+  .topbar-identity,
+  .topbar-toolbar {
     flex-wrap: wrap;
+  }
+
+  .newsletter-switcher {
+    min-width: 0;
+    flex: 1 1 14rem;
   }
 
   .subscriber-meta {

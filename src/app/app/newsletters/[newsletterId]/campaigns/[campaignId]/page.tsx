@@ -54,7 +54,7 @@ export default async function CampaignDetailPage({ params, searchParams }: PageP
     return (
       <>
         <section className="card">
-          <div className="stack-row">
+          <div className="stack-row report-header-row">
             <Link className="button button-secondary" href={`/app/newsletters/${newsletter.slug}/campaigns`}>
               Back to campaigns
             </Link>
