@@ -19,7 +19,7 @@ export function BillingActions({
   hasStripeCustomer: boolean;
   plans: Plan[];
 }) {
-  const [message, setMessage] = useState("Choose a paid plan when you are ready to test Stripe checkout.");
+  const [message, setMessage] = useState("Upgrade when you are ready or open the billing portal for changes.");
   const [loadingPlanId, setLoadingPlanId] = useState<string | null>(null);
   const [openingPortal, setOpeningPortal] = useState(false);
 
@@ -84,7 +84,7 @@ export function BillingActions({
 
   return (
     <div className="card">
-      <p className="eyebrow">Upgrade actions</p>
+      <p className="eyebrow">Billing actions</p>
       <div className="card-list">
         <div className="hero-stat">
           <strong>Manage billing</strong>
@@ -128,7 +128,7 @@ export function BillingActions({
             </div>
           ))}
       </div>
-      <p className="helper-copy">{message}</p>
+      <p className="form-status">{message}</p>
     </div>
   );
 }

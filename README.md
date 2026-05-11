@@ -417,6 +417,14 @@ Current status:
 - The current newsletter identity is visible in both sidebar and top bar
 - A sign-out action now exists directly in the app shell
 
+### 2026-05-11 Page Polish
+
+Current status:
+
+- Campaign compose and reporting surfaces have been tightened up
+- Billing/settings now uses a cleaner summary strip and quieter support copy
+- Repetitive helper text is being reduced in favor of denser, calmer product language
+
 ## Local Test Flow
 
 To test the new hosted signup form loop locally:

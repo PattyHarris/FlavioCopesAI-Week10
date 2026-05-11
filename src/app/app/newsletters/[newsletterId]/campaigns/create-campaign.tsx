@@ -193,10 +193,9 @@ export function CreateCampaign({
       <article className="card">
         <p className="eyebrow">Create campaign</p>
         <h2>Write the next email</h2>
-        <p className="helper-copy">
-          For now, a blank segment means the campaign targets all {subscriberCount.toLocaleString()} subscribers in
-          this newsletter.
-        </p>
+        <div className="inline-note">
+          Blank audience means all {subscriberCount.toLocaleString()} subscribers.
+        </div>
         <form onSubmit={handleSubmit}>
           <label className="field">
             <span className="field-label">Campaign name</span>
@@ -252,7 +251,7 @@ export function CreateCampaign({
               {isSubmitting ? "Creating..." : "Create campaign draft"}
             </button>
           </div>
-          <p className="helper-copy">{message}</p>
+          <p className="form-status">{message}</p>
         </form>
       </article>
 
@@ -267,8 +266,10 @@ export function CreateCampaign({
           ) : (
             campaigns.map((campaign) => (
               <div className="hero-stat" key={campaign.id}>
-                <strong>{campaign.name}</strong>
-                <p className="muted-copy">{campaign.subject}</p>
+                <div className="item-header">
+                  <strong>{campaign.name}</strong>
+                  <span className="muted-copy">{campaign.subject}</span>
+                </div>
                 <div className="stack-row">
                   <span className="badge">{campaign.status}</span>
                   <span className="badge">{campaign.audienceLabel}</span>

@@ -63,10 +63,12 @@ export default async function CampaignDetailPage({ params, searchParams }: PageP
           </div>
           <p className="eyebrow">Campaign report</p>
           <h2>{campaign.name}</h2>
-          <p className="muted-copy">{campaign.subject}</p>
-          <p className="helper-copy">
-            {campaign.preview_text || "No preview text was added for this campaign."}
-          </p>
+          <div className="report-summary">
+            <p className="muted-copy">{campaign.subject}</p>
+            <p className="muted-copy">
+              {campaign.preview_text || "No preview text was added for this campaign."}
+            </p>
+          </div>
           <p className="helper-copy">
             Sent at {campaign.sent_at ? formatDateTime(campaign.sent_at) : "Not sent yet"}.
             {campaign.segmentName ? ` Targeting segment: ${campaign.segmentName}.` : " Targeting all subscribers."}
@@ -159,7 +161,7 @@ export default async function CampaignDetailPage({ params, searchParams }: PageP
               </div>
             ) : (
               filteredDeliveries.map((delivery) => (
-                <div className="table-row" key={delivery.id}>
+                <div className="table-row table-row-rich" key={delivery.id}>
                   <div className="recipient-copy">
                     <strong>{delivery.subscriber.fullName ?? delivery.subscriber.email}</strong>
                     <p className="muted-copy">{delivery.subscriber.email}</p>

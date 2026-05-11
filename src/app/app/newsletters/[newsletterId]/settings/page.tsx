@@ -30,10 +30,7 @@ export default async function SettingsPage({ params, searchParams }: PageProps) 
         <section className="card">
           <p className="eyebrow">Settings</p>
           <h2>{newsletter.name}: billing, domains, defaults, and roles</h2>
-          <p className="muted-copy">
-            Billing is now driven by real subscriber and sent-email usage. Stripe checkout can plug into this next,
-            but we can already test tier thresholds safely.
-          </p>
+          <p className="muted-copy">Monitor plan fit, usage, and Stripe connection from one place.</p>
         </section>
 
         {checkoutState === "success" ? (
@@ -98,6 +95,21 @@ export default async function SettingsPage({ params, searchParams }: PageProps) 
           </article>
         </section>
 
+        <section className="summary-strip">
+          <div className="summary-pill">
+            <strong>{centsToDollars(usage.projectedTotalCents)}</strong>
+            <span>Projected monthly total</span>
+          </div>
+          <div className="summary-pill">
+            <strong>{recommendedPlan?.name ?? "No recommendation yet"}</strong>
+            <span>Recommended plan</span>
+          </div>
+          <div className="summary-pill">
+            <strong>{subscription?.stripe_customer_id ? "Connected" : "Not linked"}</strong>
+            <span>Stripe status</span>
+          </div>
+        </section>
+
         <section className="detail-grid">
           <article className="card">
             <p className="eyebrow">Usage projection</p>
@@ -117,10 +129,6 @@ export default async function SettingsPage({ params, searchParams }: PageProps) 
                 <p className="muted-copy">
                   {usage.overageEmails.toLocaleString()} above plan, {centsToDollars(usage.overageEmailCostCents)}
                 </p>
-              </div>
-              <div className="hero-stat">
-                <strong>Recommended plan</strong>
-                <p className="muted-copy">{recommendedPlan?.name ?? "No recommendation yet"}</p>
               </div>
             </div>
           </article>
@@ -188,25 +196,19 @@ export default async function SettingsPage({ params, searchParams }: PageProps) 
           </article>
 
           <article className="card">
-            <p className="eyebrow">Testing help</p>
+            <p className="eyebrow">Billing notes</p>
             <div className="card-list">
               <div className="hero-stat">
-                <strong>How to exceed the free tier</strong>
-                <p className="muted-copy">
-                  Add dummy subscribers until you cross the included subscriber limit on the free plan.
-                </p>
+                <strong>Test tier changes</strong>
+                <p className="muted-copy">Use dummy subscribers to cross the free plan threshold quickly.</p>
               </div>
               <div className="hero-stat">
-                <strong>Recommended test method</strong>
-                <p className="muted-copy">
-                  Use direct SQL inserts in Supabase for bulk dummy subscribers instead of filling forms manually.
-                </p>
+                <strong>Fastest path</strong>
+                <p className="muted-copy">Bulk inserts in Supabase are faster than creating test audiences manually.</p>
               </div>
               <div className="hero-stat">
-                <strong>Next Stripe step</strong>
-                <p className="muted-copy">
-                  Once usage and plans look right, we can connect Stripe checkout and customer portal flows.
-                </p>
+                <strong>Portal support</strong>
+                <p className="muted-copy">Use Manage billing once a Stripe customer has been linked to this newsletter.</p>
               </div>
             </div>
           </article>
